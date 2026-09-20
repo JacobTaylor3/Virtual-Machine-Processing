@@ -55,3 +55,6 @@ class Parser:
 
         # note this will not work in chapter 8, need to change
         return int(self.current_command.split()[2])
+
+    def close (self):
+        self.stream.close()
