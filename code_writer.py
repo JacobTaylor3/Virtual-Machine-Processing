@@ -1,8 +1,11 @@
+from parser import Parser
+
+
 class CodeWriter:
 
-    def __init__(self):
+    def __init__(self, path):
 
-        pass
+        self.parser = Parser(path=path)
 
     def write_arithmetic(self):
         pass
