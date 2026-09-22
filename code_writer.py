@@ -11,7 +11,9 @@ class CodeWriter:
 
         path_obj = Path(path)
 
-        filename = path_obj.stem + ".asm"
+        self.file_name = path_obj.stem
+
+        filename = self.file_name + ".asm"
 
         self.asm_out = open(filename, "w")
 
@@ -21,21 +23,89 @@ class CodeWriter:
 
     def write_push(self):  #
 
-       arg1 = self.parser_in.get_arg1()
-       arg2 = self.parser_in.get_arg2(), # this is an int 
+        arg1 = self.parser_in.get_arg1()
+        index = self.parser_in.get_arg2()  # this is an int
 
+        asm = []
 
-        # below is the default push command, we just need to first load the desired value into the D register first, which changes based on what type it is, eg., local,constant,etc
+        # argument,local, this, that,
 
-        # @SP
-        # A=M
-        # M=D
-        # @SP
-        # M=M+
+        if arg1 == "argument":
 
-        
+            # @ARG // M=RAM[ARG]
+            # D=M  // D=RAM[ARG], D stores base address
+            # @arg2
+            # A=A+D // base Address + index
+            # D=M
 
-    def write_pop (self):
+            asm.append("@ARG")
+            asm.append("D=M")
+            asm.append(f"@{index}")
+            asm.append("A=A+D")
+            asm.append("D=M")
+
+        elif arg1 == "local":
+
+            asm.append("@LCL")
+            asm.append("D=M")
+            asm.append(f"@{index}")
+            asm.append("A=A+D")
+            asm.append("D=M")
+
+        elif arg1 == "static":
+
+            symbol = f"@{self.file_name}.{index}"
+
+            asm.append(symbol)
+            asm.append("D=M")
+
+        elif arg1 == "constant":
+
+            asm.append(f"@{index}")
+            asm.append("D=A")
+
+        elif arg1 == "this":
+            asm.append("@THIS")
+            asm.append("D=M")
+            asm.append(f"@{index}")
+            asm.append("A=A+D")
+            asm.append("D=M")
+
+        elif arg1 == "that":
+            asm.append("@THAT")
+            asm.append("D=M")
+            asm.append(f"@{index}")
+            asm.append("A=A+D")
+            asm.append("D=M")
+        elif arg1 == "pointer":
+
+            if index == 0:
+
+                asm.append("@THIS")
+                asm.append("D=M")
+
+            else:  # index ==1
+
+                asm.append("@THAT")
+                asm.append("D=M")
+
+        elif arg1 == "temp":
+
+            asm.append("@5")
+            asm.append("D=A")
+            asm.append(f"@{index}")
+            asm.append("A=A+D")
+            asm.append("D=M")
+
+        base_str = "@SP\nA=M\nM=D\n@SP\nM=M+1"
+
+        push_instructions = "\n".join(asm) + "\n" + base_str
+
+        self.asm_out.write(f"// {self.parser_in.current_command}")
+
+        self.asm_out.write(f"{push_instructions}")
+
+    def write_pop(self):
         pass
 
     def run(self):
@@ -53,6 +123,4 @@ class CodeWriter:
             elif self.parser_in.command_type() == "C_ARITHMETIC":
                 self.write_arithmetic()
 
-            #will add the function stuff in chapter 8
-
-
+            # will add the function stuff in chapter 8
