@@ -28,25 +28,21 @@ class CodeWriter:
 
         asm = []
 
-        # argument,local, this, that,
+        base_segments = {
+            "argument": "ARG",
+            "local": "LCL",
+            "this": "THIS",
+            "that": "THAT",
+        }
 
-        if arg1 == "argument":
+        # @ARG // M=RAM[ARG]
+        # D=M  // D=RAM[ARG], D stores base address
+        # @arg2
+        # A=A+D // base Address + index
+        # D=M
 
-            # @ARG // M=RAM[ARG]
-            # D=M  // D=RAM[ARG], D stores base address
-            # @arg2
-            # A=A+D // base Address + index
-            # D=M
-
-            asm.append("@ARG")
-            asm.append("D=M")
-            asm.append(f"@{index}")
-            asm.append("A=A+D")
-            asm.append("D=M")
-
-        elif arg1 == "local":
-
-            asm.append("@LCL")
+        if arg1 in base_segments:
+            asm.append(f"@{base_segments[arg1]}")
             asm.append("D=M")
             asm.append(f"@{index}")
             asm.append("A=A+D")
@@ -64,19 +60,6 @@ class CodeWriter:
             asm.append(f"@{index}")
             asm.append("D=A")
 
-        elif arg1 == "this":
-            asm.append("@THIS")
-            asm.append("D=M")
-            asm.append(f"@{index}")
-            asm.append("A=A+D")
-            asm.append("D=M")
-
-        elif arg1 == "that":
-            asm.append("@THAT")
-            asm.append("D=M")
-            asm.append(f"@{index}")
-            asm.append("A=A+D")
-            asm.append("D=M")
         elif arg1 == "pointer":
 
             if index == 0:
